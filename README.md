@@ -1,9 +1,9 @@
 <div align="center">
-  <h1>sileo-vue</h1>
+  <h1>vue-sileo</h1>
   <p>Physics-based toast notifications for Vue 3</p>
   <p>
-    <a href="https://www.npmjs.com/package/sileo-vue">
-      <img src="https://img.shields.io/npm/v/sileo-vue" alt="npm" />
+    <a href="https://www.npmjs.com/package/vue-sileo">
+      <img src="https://img.shields.io/npm/v/vue-sileo" alt="npm" />
     </a>
   </p>
 </div>
@@ -13,15 +13,15 @@ A Vue 3 port of [sileo](https://github.com/hiaaryan/sileo) by [@hiaaryan](https:
 ## Installation
 
 ```bash
-npm install sileo-vue
+npm install vue-sileo
 ```
 
 ## Usage
 
 ```vue
 <script setup lang="ts">
-import { Toaster, sileo } from "sileo-vue";
-import "sileo-vue/styles.css";
+import { Toaster, sileo } from "vue-sileo";
+import "vue-sileo/styles.css";
 
 function notify() {
   sileo.success({

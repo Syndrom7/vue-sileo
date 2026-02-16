@@ -1,11 +1,11 @@
 {
-  "name": "sileo-vue",
+  "name": "vue-sileo",
   "version": "0.1.0",
   "description": "An opinionated, physics-based toast notification library for Vue.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Syndrom7/sileo-vue.git"
+    "url": "https://github.com/Syndrom7/vue-sileo.git"
   },
   "keywords": [
     "vue",
@@ -21,26 +21,26 @@
   ],
   "author": "Syndrom7",
   "bugs": {
-    "url": "https://github.com/Syndrom7/sileo-vue/issues"
+    "url": "https://github.com/Syndrom7/vue-sileo/issues"
   },
-  "homepage": "https://github.com/Syndrom7/sileo-vue#readme",
+  "homepage": "https://github.com/Syndrom7/vue-sileo#readme",
   "type": "module",
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/sileo-vue.d.ts",
-        "default": "./dist/sileo-vue.mjs"
+        "types": "./dist/vue-sileo.d.ts",
+        "default": "./dist/vue-sileo.mjs"
       },
       "require": {
-        "types": "./dist/sileo-vue.d.ts",
-        "default": "./dist/sileo-vue.cjs"
+        "types": "./dist/vue-sileo.d.ts",
+        "default": "./dist/vue-sileo.cjs"
       }
     },
-    "./styles.css": "./dist/sileo-vue.css"
+    "./styles.css": "./dist/vue-sileo.css"
   },
-  "main": "./dist/sileo-vue.cjs",
-  "module": "./dist/sileo-vue.mjs",
-  "types": "./dist/sileo-vue.d.ts",
+  "main": "./dist/vue-sileo.cjs",
+  "module": "./dist/vue-sileo.mjs",
+  "types": "./dist/vue-sileo.d.ts",
   "files": [
     "dist"
   ],

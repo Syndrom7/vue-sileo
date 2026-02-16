@@ -16,7 +16,7 @@ export default defineConfig({
       entry: resolve(__dirname, "src/lib/index.ts"),
       name: "SileoVue",
       formats: ["es", "cjs"],
-      fileName: (format) => `sileo-vue.${format === "es" ? "mjs" : "cjs"}`,
+      fileName: (format) => `vue-sileo.${format === "es" ? "mjs" : "cjs"}`,
     },
     rollupOptions: {
       external: ["vue"],
