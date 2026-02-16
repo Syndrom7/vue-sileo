@@ -1,6 +1,6 @@
 {
   "name": "vue-sileo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An opinionated, physics-based toast notification library for Vue.",
   "license": "MIT",
   "repository": {
@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/Syndrom7/vue-sileo/issues"
   },
-  "homepage": "https://github.com/Syndrom7/vue-sileo#readme",
+  "homepage": "https://vue-sileo.vercel.app",
   "type": "module",
   "exports": {
     ".": {

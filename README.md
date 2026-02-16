@@ -5,10 +5,15 @@
     <a href="https://www.npmjs.com/package/vue-sileo">
       <img src="https://img.shields.io/npm/v/vue-sileo" alt="npm" />
     </a>
+    <a href="https://vue-sileo.vercel.app">
+      <img src="https://img.shields.io/badge/demo-live-brightgreen" alt="demo" />
+    </a>
   </p>
 </div>
 
 A Vue 3 port of [sileo](https://github.com/hiaaryan/sileo) by [@hiaaryan](https://github.com/hiaaryan). All credit for the design and animations goes to the original library.
+
+**[🚀 View Demo](https://vue-sileo.vercel.app)**
 
 ## Installation
 
