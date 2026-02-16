@@ -1,0 +1,68 @@
+{
+  "name": "sileo-vue",
+  "version": "0.1.0",
+  "description": "An opinionated, physics-based toast notification library for Vue.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Syndrom7/sileo-vue.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "toast",
+    "notification",
+    "sileo",
+    "notifications",
+    "alert",
+    "message",
+    "physics",
+    "animation"
+  ],
+  "author": "Syndrom7",
+  "bugs": {
+    "url": "https://github.com/Syndrom7/sileo-vue/issues"
+  },
+  "homepage": "https://github.com/Syndrom7/sileo-vue#readme",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/sileo-vue.d.ts",
+        "default": "./dist/sileo-vue.mjs"
+      },
+      "require": {
+        "types": "./dist/sileo-vue.d.ts",
+        "default": "./dist/sileo-vue.cjs"
+      }
+    },
+    "./styles.css": "./dist/sileo-vue.css"
+  },
+  "main": "./dist/sileo-vue.cjs",
+  "module": "./dist/sileo-vue.mjs",
+  "types": "./dist/sileo-vue.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "peerDependencies": {
+    "vue": ">=3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vue/tsconfig": "^0.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0-beta.13",
+    "vite-plugin-dts": "^4.5.4",
+    "vue": "^3.5.25",
+    "vue-tsc": "^3.1.5"
+  },
+  "overrides": {
+    "vite": "^8.0.0-beta.13"
+  }
+}

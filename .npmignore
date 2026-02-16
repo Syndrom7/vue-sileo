@@ -1,0 +1,25 @@
+# Development files
+node_modules
+src
+!dist
+
+# Config files
+*.config.ts
+*.config.js
+tsconfig*.json
+.editorconfig
+
+# Demo/test files
+index.html
+
+# Lockfiles
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lock
+
+# Other
+.vscode
+.idea
+*.log
+.DS_Store
