@@ -47,6 +47,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build:app": "vite build --config vite.config.app.ts",
     "preview": "vite preview"
   },
   "peerDependencies": {
