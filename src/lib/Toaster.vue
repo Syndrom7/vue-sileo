@@ -195,8 +195,11 @@ function getViewportStyle(pos: SileoPosition): CSSProperties | undefined {
 }
 
 /* ------------------------------ Lifecycle -------------------------------- */
+const mounted = ref(false)
 
 onMounted(() => {
+	mounted.value = true
+
 	store.listeners.add((next) => {
 		toasts.value = [...next];
 	});
@@ -210,7 +213,8 @@ onUnmounted(() => {
 
 <template>
 	<slot />
-	<template v-for="pos in SILEO_POSITIONS" :key="pos">
+	<Teleport v-if="mounted" to="body">
+		<template v-for="pos in SILEO_POSITIONS" :key="pos">
 		<section
 			v-if="byPosition[pos]?.length"
 			data-sileo-viewport
@@ -243,4 +247,5 @@ onUnmounted(() => {
 			/>
 		</section>
 	</template>
+	</Teleport>
 </template>
