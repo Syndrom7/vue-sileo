@@ -1,6 +1,6 @@
 {
   "name": "vue-sileo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An opinionated, physics-based toast notification library for Vue.",
   "license": "MIT",
   "repository": {
@@ -65,5 +65,8 @@
   },
   "overrides": {
     "vite": "^8.0.0-beta.13"
+  },
+  "dependencies": {
+    "motion-v": "^2.0.0-beta.4"
   }
 }
