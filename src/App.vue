@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, h } from "vue";
+import { ref, computed, h, onMounted } from "vue";
+import hljs from "highlight.js/lib/core";
+import typescript from "highlight.js/lib/languages/typescript";
+import xml from "highlight.js/lib/languages/xml";
+
+hljs.registerLanguage("typescript", typescript);
+hljs.registerLanguage("xml", xml);
 import { Toaster, sileo } from "./lib";
 import type { SileoPosition } from "./lib";
 
@@ -12,7 +18,6 @@ const description = ref("Your changes have been saved successfully.");
 const hasDescription = ref(true);
 const fill = ref("#FFFFFF");
 const duration = ref(6000);
-const roundness = ref(18);
 const copied = ref(false);
 const installCopied = ref(false);
 const isDark = ref(true);
@@ -32,9 +37,23 @@ const codeOutput = computed(() => {
 	if (hasDescription.value && description.value) opts.push(`  description: "${description.value}",`);
 	if (fill.value !== "#FFFFFF") opts.push(`  fill: "${fill.value}",`);
 	if (duration.value !== 6000) opts.push(`  duration: ${duration.value},`);
-	if (roundness.value !== 18) opts.push(`  roundness: ${roundness.value},`);
 
 	return `sileo.${type.value}({\n${opts.join("\n")}\n});`;
+});
+
+const highlightedCode = computed(() =>
+	hljs.highlight(codeOutput.value, { language: "typescript" }).value
+);
+
+onMounted(() => {
+	document.querySelectorAll(".docs .code-block").forEach((block) => {
+		const langEl = block.querySelector(".code-lang");
+		const codeEl = block.querySelector("pre code");
+		if (!langEl || !codeEl) return;
+		const lang = langEl.textContent?.trim() ?? "typescript";
+		codeEl.classList.add(`language-${lang === "vue" ? "xml" : lang}`);
+		hljs.highlightElement(codeEl as HTMLElement);
+	});
 });
 
 /* ----------------------------- Actions ------------------------------------ */
@@ -45,7 +64,6 @@ function fireToast() {
 	if (hasDescription.value && description.value) opts.description = description.value;
 	if (fill.value !== "#FFFFFF") opts.fill = fill.value;
 	if (duration.value !== 6000) opts.duration = duration.value;
-	if (roundness.value !== 18) opts.roundness = roundness.value;
 	opts.position = position.value;
 
 	(sileo as any)[type.value](opts);
@@ -187,13 +205,6 @@ function firePromise() {
 		},
 	);
 }
-function fireCustomIcon() {
-	sileo.success({
-		title: "Deployment Started",
-		description: "Your app is being deployed to production.",
-		position: position.value,
-	});
-}
 function firePill() {
 	sileo.success({ title: "Saved", position: position.value });
 }
@@ -242,7 +253,7 @@ function toggleTheme() {
 
 		<!-- Hero -->
 		<header class="hero">
-			<div class="hero-badge">v0.1.0</div>
+			<div class="hero-badge">v0.1.2</div>
 			<h1 class="hero-title">vue-sileo</h1>
 			<p class="hero-sub">Physics-based toast notifications for Vue 3.</p>
 			<p class="hero-credit">
@@ -262,37 +273,15 @@ function toggleTheme() {
 					<h2 class="section-title">Examples</h2>
 					<p class="section-sub">Click to preview</p>
 
-					<div class="example-group">
-					<span class="example-label">Toast Types</span>
 					<div class="example-pills">
-						<button class="pill" @click="fireSuccess">Success</button>
-						<button class="pill" @click="fireError">Error</button>
-						<button class="pill" @click="fireWarning">Warning</button>
-						<button class="pill" @click="fireInfo">Info</button>
+						<button class="pill pill--success" @click="fireSuccess">Success</button>
+						<button class="pill pill--error" @click="fireError">Error</button>
+						<button class="pill pill--warning" @click="fireWarning">Warning</button>
+						<button class="pill pill--info" @click="fireInfo">Info</button>
+						<button class="pill pill--action" @click="fireAction">Action</button>
+						<button class="pill pill--promise" @click="firePromise">Promise</button>
+						<button class="pill" @click="firePill">Pill</button>
 					</div>
-				</div>
-
-				<div class="example-group">
-					<span class="example-label">With Action</span>
-					<div class="example-pills">
-						<button class="pill" @click="fireAction">Action + Button</button>
-						<button class="pill" @click="fireCustomIcon">Custom Icon</button>
-					</div>
-				</div>
-
-				<div class="example-group">
-					<span class="example-label">Promise</span>
-					<div class="example-pills">
-						<button class="pill" @click="firePromise">Booking Flow</button>
-					</div>
-				</div>
-
-				<div class="example-group">
-					<span class="example-label">Pill Only</span>
-					<div class="example-pills">
-						<button class="pill" @click="firePill">No Description</button>
-					</div>
-				</div>
 				</div>
 
 				<!-- Builder -->
@@ -354,11 +343,6 @@ function toggleTheme() {
 							</div>
 						</div>
 
-						<div class="builder-field">
-							<label class="builder-label">Roundness ({{ roundness }}px)</label>
-							<input type="range" v-model.number="roundness" min="0" max="40" step="1" class="builder-range" />
-						</div>
-
 						<button class="fire-btn" @click="fireToast">Fire Toast</button>
 					</div>
 
@@ -368,7 +352,7 @@ function toggleTheme() {
 							<span class="code-lang">typescript</span>
 							<button class="code-copy" @click="copyCode">{{ copied ? "Copied!" : "Copy" }}</button>
 						</div>
-						<pre class="code-pre"><code>{{ codeOutput }}</code></pre>
+						<pre class="code-pre"><code v-html="highlightedCode"></code></pre>
 					</div>
 				</div>
 			</div>
@@ -719,7 +703,7 @@ sileo.success({
 /* -------------------------------- Reset ----------------------------------- */
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 :root {
 	--bg: #0a0a0a;
@@ -737,6 +721,15 @@ html { scroll-behavior: smooth; }
 	--accent: #6ee7b7;
 	--accent-bg: rgba(110, 231, 183, 0.1);
 	--accent-border: rgba(110, 231, 183, 0.2);
+
+	/* syntax highlight tokens — VS Code Dark+ */
+	--hl-keyword:  #569cd6;
+	--hl-string:   #ce9178;
+	--hl-number:   #b5cea8;
+	--hl-comment:  #6a9955;
+	--hl-type:     #4ec9b0;
+	--hl-function: #dcdcaa;
+	--hl-variable: #9cdcfe;
 }
 
 [data-theme="light"] {
@@ -755,6 +748,15 @@ html { scroll-behavior: smooth; }
 	--accent: #059669;
 	--accent-bg: rgba(5, 150, 105, 0.1);
 	--accent-border: rgba(5, 150, 105, 0.2);
+
+	/* syntax highlight tokens — VS Code Light+ */
+	--hl-keyword:  #0000ff;
+	--hl-string:   #a31515;
+	--hl-number:   #098658;
+	--hl-comment:  #008000;
+	--hl-type:     #267f99;
+	--hl-function: #795e26;
+	--hl-variable: #001080;
 }
 
 body {
@@ -764,6 +766,7 @@ body {
 	min-height: 100vh;
 	-webkit-font-smoothing: antialiased;
 	transition: background-color 200ms, color 200ms;
+	overflow-x: hidden;
 }
 
 a { color: var(--text-muted); text-decoration: none; transition: color 150ms; }
@@ -787,10 +790,6 @@ a:hover { color: var(--text); }
 	transition: background-color 200ms, border-color 200ms;
 }
 
-/* Toast viewport needs higher z-index than nav */
-[data-sileo-viewport] {
-	z-index: 200;
-}
 
 .nav-brand {
 	font-size: 0.9rem;
@@ -843,7 +842,7 @@ a:hover { color: var(--text); }
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	padding: 8rem 2rem 4rem;
+	padding: 8rem 1.5rem 3.5rem;
 }
 
 .hero-badge {
@@ -861,7 +860,7 @@ a:hover { color: var(--text); }
 	font-size: 3.5rem;
 	font-weight: 700;
 	color: var(--text);
-	letter-spacing: -0.04em;
+	letter-spacing: -0.03em;
 	line-height: 1;
 	margin-bottom: 0.75rem;
 }
@@ -909,7 +908,7 @@ a:hover { color: var(--text); }
 
 /* ----------------------------- Sections ----------------------------------- */
 .section-title {
-	font-size: 1.4rem;
+	font-size: 1.15rem;
 	font-weight: 600;
 	color: var(--text);
 	letter-spacing: -0.02em;
@@ -924,7 +923,7 @@ a:hover { color: var(--text); }
 
 /* ----------------------------- Playground --------------------------------- */
 .playground {
-	padding: 2rem;
+	padding: 1.5rem;
 }
 
 .playground-grid {
@@ -934,19 +933,8 @@ a:hover { color: var(--text); }
 }
 
 /* ------------------------------- Examples --------------------------------- */
-.examples { padding-top: 0.5rem; }
-
-.example-group { margin-bottom: 1.5rem; }
-
-.example-label {
-	display: block;
-	font-size: 0.7rem;
-	font-weight: 500;
-	color: var(--text-subtle);
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin-bottom: 0.5rem;
-}
+.examples { padding-top: 0.5rem; min-width: 0; }
+.builder { min-width: 0; }
 
 .example-pills {
 	display: flex;
@@ -981,9 +969,36 @@ a:hover { color: var(--text); }
 	font-size: 0.725rem;
 }
 
+/* -------------------------- Pill color variants --------------------------- */
+.pill--success { color: #4ade80; border-color: rgba(74, 222, 128, 0.3); background: rgba(74, 222, 128, 0.07); }
+.pill--success:hover { background: rgba(74, 222, 128, 0.14); border-color: rgba(74, 222, 128, 0.55); }
+.pill--error { color: #f87171; border-color: rgba(248, 113, 113, 0.3); background: rgba(248, 113, 113, 0.07); }
+.pill--error:hover { background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.55); }
+.pill--warning { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.07); }
+.pill--warning:hover { background: rgba(251, 191, 36, 0.14); border-color: rgba(251, 191, 36, 0.55); }
+.pill--info { color: #60a5fa; border-color: rgba(96, 165, 250, 0.3); background: rgba(96, 165, 250, 0.07); }
+.pill--info:hover { background: rgba(96, 165, 250, 0.14); border-color: rgba(96, 165, 250, 0.55); }
+.pill--action { color: #c084fc; border-color: rgba(192, 132, 252, 0.3); background: rgba(192, 132, 252, 0.07); }
+.pill--action:hover { background: rgba(192, 132, 252, 0.14); border-color: rgba(192, 132, 252, 0.55); }
+.pill--promise { color: #818cf8; border-color: rgba(129, 140, 248, 0.3); background: rgba(129, 140, 248, 0.07); }
+.pill--promise:hover { background: rgba(129, 140, 248, 0.14); border-color: rgba(129, 140, 248, 0.55); }
+
+[data-theme="light"] .pill--success { color: #16a34a; border-color: rgba(22, 163, 74, 0.35); background: rgba(22, 163, 74, 0.07); }
+[data-theme="light"] .pill--success:hover { background: rgba(22, 163, 74, 0.14); border-color: rgba(22, 163, 74, 0.55); }
+[data-theme="light"] .pill--error { color: #dc2626; border-color: rgba(220, 38, 38, 0.35); background: rgba(220, 38, 38, 0.07); }
+[data-theme="light"] .pill--error:hover { background: rgba(220, 38, 38, 0.14); border-color: rgba(220, 38, 38, 0.55); }
+[data-theme="light"] .pill--warning { color: #d97706; border-color: rgba(217, 119, 6, 0.35); background: rgba(217, 119, 6, 0.07); }
+[data-theme="light"] .pill--warning:hover { background: rgba(217, 119, 6, 0.14); border-color: rgba(217, 119, 6, 0.55); }
+[data-theme="light"] .pill--info { color: #2563eb; border-color: rgba(37, 99, 235, 0.35); background: rgba(37, 99, 235, 0.07); }
+[data-theme="light"] .pill--info:hover { background: rgba(37, 99, 235, 0.14); border-color: rgba(37, 99, 235, 0.55); }
+[data-theme="light"] .pill--action { color: #9333ea; border-color: rgba(147, 51, 234, 0.35); background: rgba(147, 51, 234, 0.07); }
+[data-theme="light"] .pill--action:hover { background: rgba(147, 51, 234, 0.14); border-color: rgba(147, 51, 234, 0.55); }
+[data-theme="light"] .pill--promise { color: #4f46e5; border-color: rgba(79, 70, 229, 0.35); background: rgba(79, 70, 229, 0.07); }
+[data-theme="light"] .pill--promise:hover { background: rgba(79, 70, 229, 0.14); border-color: rgba(79, 70, 229, 0.55); }
+
 /* ------------------------------- Builder ---------------------------------- */
 .builder-card {
-	background: var(--bg-elevated);
+	background: transparent;
 	border: 1px solid var(--border);
 	border-radius: 12px;
 	padding: 1.25rem;
@@ -1152,11 +1167,11 @@ a:hover { color: var(--text); }
 
 /* --------------------------------- Docs ----------------------------------- */
 .docs {
-	padding: 4rem 2rem;
+	padding: 3rem 1.5rem;
 	border-top: 1px solid var(--border-subtle);
 }
 
-.docs .section-title { margin-bottom: 2rem; }
+.docs .section-title { margin-bottom: 1.5rem; }
 
 .doc-item {
 	display: flex;
@@ -1166,8 +1181,8 @@ a:hover { color: var(--text); }
 
 .doc-num {
 	font-size: 0.8rem;
-	font-weight: 600;
-	color: var(--text-dark);
+	font-weight: 500;
+	color: var(--border-hover);
 	font-family: "JetBrains Mono", monospace;
 	flex-shrink: 0;
 	padding-top: 0.15rem;
@@ -1185,6 +1200,17 @@ a:hover { color: var(--text); }
 	margin-top: 1.5rem;
 	margin-bottom: 0.5rem;
 }
+
+/* ------------ Syntax highlighting — VS Code Dark+ / Light+ ---------------- */
+.hljs-keyword, .hljs-operator, .hljs-meta, .hljs-literal { color: var(--hl-keyword); }
+.hljs-string, .hljs-template-string { color: var(--hl-string); }
+.hljs-number { color: var(--hl-number); }
+.hljs-comment { color: var(--hl-comment); font-style: italic; }
+.hljs-built_in, .hljs-title.class_ { color: var(--hl-type); }
+.hljs-title, .hljs-title.function_ { color: var(--hl-function); }
+.hljs-variable, .hljs-params, .hljs-attr, .hljs-property, .hljs-subst { color: var(--hl-variable); }
+.hljs-tag { color: var(--hl-keyword); }
+.hljs-name { color: var(--hl-type); }
 
 /* ----------------------------- Ref Tables --------------------------------- */
 .ref-table {
@@ -1246,11 +1272,34 @@ a:hover { color: var(--text); }
 @media (max-width: 768px) {
 	.playground-grid {
 		grid-template-columns: 1fr;
-		gap: 2rem;
+		gap: 1.5rem;
 	}
 
+	.nav { padding: 0 1.25rem; }
+	.nav-links { gap: 0.75rem; }
+	.nav-links a:not(.nav-icon) { display: none; }
+
 	.hero-title { font-size: 2.5rem; }
-	.doc-item { flex-direction: column; gap: 0.5rem; }
+	.doc-item { flex-direction: column; gap: 0.35rem; }
 	.builder-row { flex-direction: column; }
+}
+
+@media (max-width: 640px) {
+	.nav { padding: 0 1rem; }
+
+	.hero { padding: 5rem 1.25rem 2.5rem; }
+	.hero-title { font-size: 2rem; }
+	.hero-sub { font-size: 0.95rem; }
+
+	.playground { padding: 1.25rem; }
+	.docs { padding: 2rem 1.25rem; }
+	.footer { padding: 1.5rem 1.25rem; }
+}
+
+@media (max-width: 480px) {
+	.install-btn { font-size: 0.75rem; gap: 0.5rem; padding: 0.5rem 0.75rem; }
+	.pill { font-size: 0.75rem; }
+	.builder-card { padding: 1rem; }
+	.nav-links { gap: 0.5rem; }
 }
 </style>

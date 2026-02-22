@@ -10,6 +10,7 @@ import {
 	type CSSProperties,
 	h,
 } from "vue";
+import { motion } from "motion-v";
 import type { SileoButton, SileoState, SileoStyles } from "./types";
 import {
 	ArrowRight,
@@ -25,12 +26,18 @@ import type { View } from "./store";
 
 const HEIGHT = 40;
 const WIDTH = 350;
-const DEFAULT_ROUNDNESS = 18;
+const DEFAULT_ROUNDNESS = 16;
 const BLUR_RATIO = 0.5;
 const PILL_PADDING = 10;
 const MIN_EXPAND_RATIO = 2.25;
 const SWAP_COLLAPSE_MS = 200;
-const HEADER_EXIT_MS = 150;
+const HEADER_EXIT_MS = 420; // calc(600ms * 0.7)
+
+const SPRING = {
+	type: "spring" as const,
+	bounce: 0.25,
+	duration: 0.6,
+};
 
 /* ---------------------------------- Icons --------------------------------- */
 
@@ -191,17 +198,40 @@ const rootStyle = computed<CSSProperties & Record<string, string>>(() => ({
 	"--_h": `${open.value ? expanded.value : HEIGHT}px`,
 	"--_pw": `${resolvedPillWidth.value}px`,
 	"--_px": `${pillX.value}px`,
-	"--_sy": `${open.value ? 1 : HEIGHT / pillHeight.value}`,
-	"--_ph": `${pillHeight.value}px`,
-	"--_by": `${open.value ? 1 : 0}`,
 	"--_ht": `translateY(${open.value ? (props.expand === "bottom" ? 3 : -3) : 0}px) scale(${open.value ? 0.9 : 1})`,
 	"--_co": `${open.value ? 1 : 0}`,
 }));
+
+const canvasStyle = computed<CSSProperties>(() => ({
+	filter: `url(#${filterId.value})`,
+}));
+
+/* ------------------------------- Motion animate targets ------------------- */
+
+const pillAnimate = computed(() => ({
+	x: pillX.value,
+	width: resolvedPillWidth.value,
+	height: open.value ? pillHeight.value : HEIGHT,
+}));
+
+const bodyAnimate = computed(() => ({
+	height: open.value ? expandedContent.value : 0,
+	opacity: open.value ? 1 : 0,
+}));
+
+const bodyTransition = computed(() =>
+	open.value ? SPRING : { ...SPRING, bounce: 0 },
+);
+
+const pillTransition = computed(() =>
+	ready.value ? SPRING : { duration: 0 },
+);
 
 /* ------------------------------ Measurements ------------------------------ */
 
 let pillRo: ResizeObserver | null = null;
 let pillRafId = 0;
+let pillObserved: Element | null = null;
 let contentRo: ResizeObserver | null = null;
 let contentRafId = 0;
 
@@ -222,23 +252,24 @@ function measurePill() {
 }
 
 function setupPillObserver() {
-	cleanupPillObserver();
 	const el = innerRef.value;
 	if (!el) return;
 	measurePill();
-	pillRo = new ResizeObserver(() => {
-		cancelAnimationFrame(pillRafId);
-		pillRafId = requestAnimationFrame(measurePill);
-	});
-	pillRo.observe(el);
+	if (!pillRo) {
+		pillRo = new ResizeObserver(() => {
+			cancelAnimationFrame(pillRafId);
+			pillRafId = requestAnimationFrame(measurePill);
+		});
+	}
+	if (pillObserved !== el) {
+		if (pillObserved) pillRo.unobserve(pillObserved);
+		pillRo.observe(el);
+		pillObserved = el;
+	}
 }
 
-function cleanupPillObserver() {
-	if (pillRo) {
-		cancelAnimationFrame(pillRafId);
-		pillRo.disconnect();
-		pillRo = null;
-	}
+function cancelPillRaf() {
+	cancelAnimationFrame(pillRafId);
 }
 
 function measureContent() {
@@ -458,32 +489,38 @@ const SWIPE_DISMISS = 30;
 const SWIPE_MAX = 20;
 let pointerStart: number | null = null;
 
+const swipeHandlers = {
+	onMove: (e: PointerEvent) => {
+		const el = buttonRef.value;
+		if (pointerStart === null || !el) return;
+		const dy = e.clientY - pointerStart;
+		const sign = dy > 0 ? 1 : -1;
+		const clamped = Math.min(Math.abs(dy), SWIPE_MAX) * sign;
+		el.style.transform = `translateY(${clamped}px)`;
+	},
+	onUp: (e: PointerEvent) => {
+		const el = buttonRef.value;
+		if (pointerStart === null || !el) return;
+		const dy = e.clientY - pointerStart;
+		pointerStart = null;
+		el.style.transform = "";
+		el.removeEventListener("pointermove", swipeHandlers.onMove);
+		el.removeEventListener("pointerup", swipeHandlers.onUp);
+		if (Math.abs(dy) > SWIPE_DISMISS) {
+			emit("dismiss");
+		}
+	},
+};
+
 function handlePointerDown(e: PointerEvent) {
 	if (props.exiting) return;
 	const target = e.target as HTMLElement;
 	if (target.closest("[data-sileo-button]")) return;
 	pointerStart = e.clientY;
-	(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-}
-
-function handlePointerMove(e: PointerEvent) {
-	if (pointerStart === null) return;
-	const dy = e.clientY - pointerStart;
-	const sign = dy > 0 ? 1 : -1;
-	const clamped = Math.min(Math.abs(dy), SWIPE_MAX) * sign;
-	const el = buttonRef.value;
-	if (el) el.style.transform = `translateY(${clamped}px)`;
-}
-
-function handlePointerUp(e: PointerEvent) {
-	if (pointerStart === null) return;
-	const dy = e.clientY - pointerStart;
-	pointerStart = null;
-	const el = buttonRef.value;
-	if (el) el.style.transform = "";
-	if (Math.abs(dy) > SWIPE_DISMISS) {
-		emit("dismiss");
-	}
+	const el = e.currentTarget as HTMLElement;
+	el.setPointerCapture(e.pointerId);
+	el.addEventListener("pointermove", swipeHandlers.onMove, { passive: true });
+	el.addEventListener("pointerup", swipeHandlers.onUp, { passive: true });
 }
 
 /* -------------------------------- Lifecycle -------------------------------- */
@@ -495,29 +532,17 @@ onMounted(() => {
 		setupPillObserver();
 		if (hasDesc.value) setupContentObserver();
 	});
-
-	// Set up swipe listeners
-	const el = buttonRef.value;
-	if (el) {
-		el.addEventListener("pointermove", handlePointerMove, { passive: true });
-		el.addEventListener("pointerup", handlePointerUp, { passive: true });
-	}
 });
 
 onUnmounted(() => {
-	cleanupPillObserver();
+	cancelPillRaf();
+	pillRo?.disconnect();
 	cleanupContentObserver();
 
 	if (headerExitTimer) clearTimeout(headerExitTimer);
 	if (autoExpandTimer) clearTimeout(autoExpandTimer);
 	if (autoCollapseTimer) clearTimeout(autoCollapseTimer);
 	if (swapTimer) clearTimeout(swapTimer);
-
-	const el = buttonRef.value;
-	if (el) {
-		el.removeEventListener("pointermove", handlePointerMove);
-		el.removeEventListener("pointerup", handlePointerUp);
-	}
 });
 
 /* ----------------------------- Icon rendering ----------------------------- */
@@ -552,7 +577,7 @@ function handleButtonClick(e: MouseEvent) {
 		@pointerdown="handlePointerDown"
 	>
 		<!-- SVG Canvas -->
-		<div data-sileo-canvas :data-edge="props.expand">
+		<div data-sileo-canvas :data-edge="props.expand" :style="canvasStyle">
 			<svg
 				data-sileo-svg
 				:width="WIDTH"
@@ -579,24 +604,26 @@ function handleButtonClick(e: MouseEvent) {
 						<feComposite in="SourceGraphic" in2="goo" operator="atop" />
 					</filter>
 				</defs>
-				<g :filter="`url(#${filterId})`">
-					<rect
-						data-sileo-pill
-						:x="pillX"
-						:rx="resolvedRoundness"
-						:ry="resolvedRoundness"
-						:fill="view.fill"
-					/>
-					<rect
-						data-sileo-body
-						:y="HEIGHT"
-						:width="WIDTH"
-						:height="expandedContent"
-						:rx="resolvedRoundness"
-						:ry="resolvedRoundness"
-						:fill="view.fill"
-					/>
-				</g>
+				<motion.rect
+					data-sileo-pill
+					:rx="resolvedRoundness"
+					:ry="resolvedRoundness"
+					:fill="view.fill"
+					:initial="false"
+					:animate="pillAnimate"
+					:transition="pillTransition"
+				/>
+				<motion.rect
+					data-sileo-body
+					:y="HEIGHT"
+					:width="WIDTH"
+					:rx="resolvedRoundness"
+					:ry="resolvedRoundness"
+					:fill="view.fill"
+					:initial="false"
+					:animate="bodyAnimate"
+					:transition="bodyTransition"
+				/>
 			</svg>
 		</div>
 
