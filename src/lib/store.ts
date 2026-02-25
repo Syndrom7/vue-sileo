@@ -46,10 +46,11 @@ export interface SileoToasterProps {
     position?: SileoPosition;
     offset?: SileoOffsetValue | SileoOffsetConfig;
     options?: Partial<SileoOptions>;
+    theme?: "light" | "dark" | "system";
 }
 
 export interface SileoPromiseOptions<T = unknown> {
-    loading: Pick<SileoOptions, "title" | "icon">;
+    loading: SileoOptions;
     success: SileoOptions | ((data: T) => SileoOptions);
     error: SileoOptions | ((err: unknown) => SileoOptions);
     action?: SileoOptions | ((data: T) => SileoOptions);
@@ -173,7 +174,7 @@ const updateToast = (id: string, options: InternalSileoOptions) => {
 /* -------------------------------- Public API ------------------------------- */
 
 export const sileo = {
-    show: (opts: SileoOptions) => createToast(opts).id,
+    show: (opts: SileoOptions) => createToast({ ...opts, state: opts.type }).id,
     success: (opts: SileoOptions) =>
         createToast({ ...opts, state: "success" }).id,
     error: (opts: SileoOptions) => createToast({ ...opts, state: "error" }).id,

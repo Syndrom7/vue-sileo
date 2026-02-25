@@ -253,7 +253,7 @@ function toggleTheme() {
 
 		<!-- Hero -->
 		<header class="hero">
-			<div class="hero-badge">v0.1.2</div>
+			<div class="hero-badge">v0.1.3</div>
 			<h1 class="hero-title">vue-sileo</h1>
 			<p class="hero-sub">Physics-based toast notifications for Vue 3.</p>
 			<p class="hero-credit">

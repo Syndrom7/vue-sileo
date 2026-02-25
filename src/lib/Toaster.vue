@@ -7,6 +7,52 @@ import {
 	onUnmounted,
 	type CSSProperties,
 } from "vue";
+
+/* --------------------------------- Themes -------------------------------- */
+
+const THEME_FILLS = {
+	light: "#1a1a1a",
+	dark: "#f2f2f2",
+} as const;
+
+function useResolvedTheme(
+	getTheme: () => "light" | "dark" | "system" | undefined,
+) {
+	const resolved = ref<"light" | "dark">((() => {
+		const t = getTheme();
+		if (t === "light" || t === "dark") return t;
+		if (typeof window === "undefined") return "light";
+		return window.matchMedia("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
+	})());
+
+	watch(getTheme, (theme) => {
+		if (theme === "light" || theme === "dark") {
+			resolved.value = theme;
+			return;
+		}
+		const mq = window.matchMedia("(prefers-color-scheme: dark)");
+		resolved.value = mq.matches ? "dark" : "light";
+	}, { immediate: true });
+
+	let cleanup: (() => void) | undefined;
+
+	watch(getTheme, (theme) => {
+		cleanup?.();
+		cleanup = undefined;
+		if (theme !== "system" && theme !== undefined) return;
+		const mq = window.matchMedia("(prefers-color-scheme: dark)");
+		const handler = (e: MediaQueryListEvent) =>
+			(resolved.value = e.matches ? "dark" : "light");
+		mq.addEventListener("change", handler);
+		cleanup = () => mq.removeEventListener("change", handler);
+	}, { immediate: true });
+
+	onUnmounted(() => cleanup?.());
+
+	return resolved;
+}
 import Sileo from "./Sileo.vue";
 import { SILEO_POSITIONS, type SileoPosition } from "./types";
 import {
@@ -27,6 +73,10 @@ import { sileo } from "./store";
 const props = withDefaults(defineProps<SileoToasterProps>(), {
 	position: "top-right",
 });
+
+/* ---------------------------------- Theme --------------------------------- */
+
+const resolvedTheme = useResolvedTheme(() => props.theme);
 
 /* ---------------------------------- State --------------------------------- */
 
@@ -65,8 +115,9 @@ function schedule(items: SileoItem[]) {
 		const key = timeoutKey(item);
 		if (timers.has(key)) continue;
 
+		if (item.duration === null) continue;
 		const dur = item.duration ?? DEFAULT_DURATION;
-		if (dur === null || dur <= 0) continue;
+		if (dur <= 0) continue;
 
 		timers.set(
 			key,
@@ -219,6 +270,7 @@ onUnmounted(() => {
 			v-if="byPosition[pos]?.length"
 			data-sileo-viewport
 			:data-position="pos"
+			:data-theme="props.theme ? resolvedTheme : undefined"
 			aria-live="polite"
 			:style="getViewportStyle(pos)"
 		>
@@ -232,7 +284,7 @@ onUnmounted(() => {
 				:position="pillAlign(pos)"
 				:expand="expandDir(pos)"
 				:icon="item.icon"
-				:fill="item.fill"
+				:fill="item.fill ?? (props.theme ? THEME_FILLS[resolvedTheme] : undefined)"
 				:styles="item.styles"
 				:button="item.button"
 				:roundness="item.roundness"

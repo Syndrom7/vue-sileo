@@ -350,6 +350,17 @@ watch(
 	},
 );
 
+/* -------------------------------- Sync fill ------------------------------- */
+
+watch(
+	() => props.fill,
+	(fill) => {
+		if (view.value.fill !== fill) {
+			view.value = { ...view.value, fill };
+		}
+	},
+);
+
 /* ----------------------------- Content observer --------------------------- */
 
 watch(hasDesc, (val) => {
