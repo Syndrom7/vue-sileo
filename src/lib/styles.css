@@ -338,6 +338,14 @@
 	content-visibility: auto;
 }
 
+[data-sileo-description][data-align="center"] {
+	text-align: center;
+}
+
+[data-sileo-description][data-align="right"] {
+	text-align: right;
+}
+
 /* --------------------------------- Button --------------------------------- */
 
 [data-sileo-button] {

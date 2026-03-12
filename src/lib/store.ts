@@ -5,6 +5,7 @@ import type {
     SileoPosition,
     SileoState,
     SileoStyles,
+    SileoTextAlign,
 } from "./types";
 
 /* -------------------------------- Constants ------------------------------- */
@@ -68,6 +69,7 @@ export interface View {
     styles?: SileoStyles;
     button?: SileoButton;
     fill: string;
+    descriptionAlign?: SileoTextAlign;
 }
 
 /* ------------------------------ Global State ------------------------------ */

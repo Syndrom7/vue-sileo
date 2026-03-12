@@ -495,6 +495,7 @@ sileo.promise(createUser(data), {
 								<tr><td><code>roundness</code></td><td><code>number</code></td><td><code>18</code></td><td>Border radius in pixels</td></tr>
 								<tr><td><code>autopilot</code></td><td><code>boolean | object</code></td><td><code>true</code></td><td>Auto expand/collapse timing</td></tr>
 								<tr><td><code>button</code></td><td><code>SileoButton</code></td><td>—</td><td>Action button config</td></tr>
+								<tr><td><code>descriptionAlign</code></td><td><code>"left" | "center" | "right"</code></td><td><code>"left"</code></td><td>Text alignment for description</td></tr>
 							</tbody>
 						</table>
 					</div>
@@ -547,6 +548,7 @@ sileo.promise(createUser(data), {
 								<tr><td><code>position</code></td><td><code>SileoPosition</code></td><td><code>"top-right"</code></td><td>Default position for all toasts</td></tr>
 								<tr><td><code>offset</code></td><td><code>number | string | object</code></td><td><code>16</code></td><td>Distance from viewport edges</td></tr>
 								<tr><td><code>options</code></td><td><code>Partial&lt;SileoOptions&gt;</code></td><td>—</td><td>Default options merged into every toast</td></tr>
+								<tr><td><code>maxVisibleToasts</code></td><td><code>number</code></td><td><code>3</code></td><td>Max toasts visible per position before stacking</td></tr>
 							</tbody>
 						</table>
 					</div>

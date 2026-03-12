@@ -31,6 +31,8 @@ export const SILEO_POSITIONS = [
 
 export type SileoPosition = (typeof SILEO_POSITIONS)[number];
 
+export type SileoTextAlign = "left" | "center" | "right";
+
 export interface SileoOptions {
     title?: string;
     description?: VNode | string;
@@ -43,6 +45,7 @@ export interface SileoOptions {
     roundness?: number;
     autopilot?: boolean | { expand?: number; collapse?: number };
     button?: SileoButton;
+    descriptionAlign?: SileoTextAlign;
 }
 
 export interface SileoStackProps {

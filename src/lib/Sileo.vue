@@ -11,7 +11,7 @@ import {
 	h,
 } from "vue";
 import { motion } from "motion-v";
-import type { SileoButton, SileoState, SileoStyles, SileoStackProps } from "./types";
+import type { SileoButton, SileoState, SileoStyles, SileoStackProps, SileoTextAlign } from "./types";
 import {
 	ArrowRight,
 	Check,
@@ -72,6 +72,7 @@ const props = withDefaults(
 		interruptKey?: string;
 		refreshKey?: string;
 		stack?: SileoStackProps;
+		descriptionAlign?: SileoTextAlign;
 	}>(),
 	{
 		fill: "var(--sileo-fill)",
@@ -100,6 +101,7 @@ const view = ref<View>({
 	styles: props.styles,
 	button: props.button,
 	fill: props.fill,
+	descriptionAlign: props.descriptionAlign,
 });
 
 const applied = ref(props.refreshKey);
@@ -158,6 +160,7 @@ const next = computed<View>(() => ({
 	styles: props.styles,
 	button: props.button,
 	fill: props.fill,
+	descriptionAlign: props.descriptionAlign,
 }));
 
 /* ------------------------------ Derived values ---------------------------- */
@@ -719,6 +722,7 @@ function handleButtonClick(e: MouseEvent) {
 			<div
 				ref="contentRef"
 				data-sileo-description
+				:data-align="view.descriptionAlign || undefined"
 				:class="view.styles?.description"
 			>
 				<template v-if="typeof view.description === 'string'">

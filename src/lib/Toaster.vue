@@ -384,6 +384,7 @@ onUnmounted(() => {
 				:fill="item.fill ?? (props.theme ? THEME_FILLS[resolvedTheme] : undefined)"
 				:styles="item.styles"
 				:button="item.button"
+				:description-align="item.descriptionAlign"
 				:roundness="item.roundness"
 				:exiting="item.exiting"
 				:auto-expand-delay-ms="item.autoExpandDelayMs"

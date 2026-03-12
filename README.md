@@ -74,9 +74,10 @@ sileo.promise(
 ### Configuration
 
 ```vue
-<Toaster 
+<Toaster
   position="top-right"
   :offset="16"
+  :max-visible-toasts="3"
   :options="{ duration: 5000, roundness: 18 }"
 />
 ```
@@ -90,13 +91,24 @@ sileo.promise(
   title?: string;
   description?: string;
   position?: SileoPosition;
-  duration?: number | null;  // milliseconds, null = infinite
-  fill?: string;             // background color
-  roundness?: number;        // border radius
-  autopilot?: boolean;       // auto expand/collapse
+  duration?: number | null;      // milliseconds, null = infinite
+  fill?: string;                 // background color
+  roundness?: number;            // border radius
+  autopilot?: boolean;           // auto expand/collapse
+  descriptionAlign?: "left" | "center" | "right";  // default: "left"
   button?: { title: string; onClick: () => void };
 }
 ```
+
+### Toaster Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `position` | `SileoPosition` | `"top-right"` | Default position for all toasts |
+| `offset` | `number \| string \| object` | `16` | Distance from viewport edges |
+| `options` | `Partial<SileoOptions>` | — | Default options merged into every toast |
+| `maxVisibleToasts` | `number` | `3` | Max toasts visible per position before stacking |
+| `theme` | `"light" \| "dark" \| "system"` | — | Color theme |
 
 ## Credits
 
