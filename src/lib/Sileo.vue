@@ -73,6 +73,7 @@ const props = withDefaults(
 		refreshKey?: string;
 		stack?: SileoStackProps;
 		descriptionAlign?: SileoTextAlign;
+		closable?: boolean;
 	}>(),
 	{
 		fill: "var(--sileo-fill)",
@@ -80,6 +81,7 @@ const props = withDefaults(
 		position: "left",
 		expand: "bottom",
 		exiting: false,
+		closable: true,
 	},
 );
 
@@ -545,7 +547,7 @@ const swipeHandlers = {
 function handlePointerDown(e: PointerEvent) {
 	if (props.exiting) return;
 	const target = e.target as HTMLElement;
-	if (target.closest("[data-sileo-button]")) return;
+	if (target.closest("[data-sileo-button]") || target.closest("[data-sileo-dismiss]")) return;
 	pointerStart = e.clientY;
 	const el = e.currentTarget as HTMLElement;
 	el.setPointerCapture(e.pointerId);
@@ -587,6 +589,7 @@ function handleButtonClick(e: MouseEvent) {
 	e.stopPropagation();
 	view.value.button?.onClick();
 }
+
 </script>
 
 <template>
@@ -664,6 +667,7 @@ function handleButtonClick(e: MouseEvent) {
 		<!-- Header -->
 		<div ref="headerRef" data-sileo-header :data-edge="props.expand">
 			<div data-sileo-header-stack>
+
 				<!-- Current header -->
 				<div
 					ref="innerRef"
@@ -710,6 +714,16 @@ function handleButtonClick(e: MouseEvent) {
 					</span>
 				</div>
 			</div>
+		</div>
+
+		<!-- Dismiss -->
+		<div
+			v-if="props.closable && !isLoading"
+			data-sileo-dismiss
+			:data-edge="props.expand"
+			@click.prevent.stop="emit('dismiss')"
+		>
+			<XIcon />
 		</div>
 
 		<!-- Content -->

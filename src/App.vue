@@ -253,7 +253,7 @@ function toggleTheme() {
 
 		<!-- Hero -->
 		<header class="hero">
-			<div class="hero-badge">v0.1.3</div>
+			<div class="hero-badge">v0.1.4</div>
 			<h1 class="hero-title">vue-sileo</h1>
 			<p class="hero-sub">Physics-based toast notifications for Vue 3.</p>
 			<p class="hero-credit">
@@ -496,6 +496,7 @@ sileo.promise(createUser(data), {
 								<tr><td><code>autopilot</code></td><td><code>boolean | object</code></td><td><code>true</code></td><td>Auto expand/collapse timing</td></tr>
 								<tr><td><code>button</code></td><td><code>SileoButton</code></td><td>—</td><td>Action button config</td></tr>
 								<tr><td><code>descriptionAlign</code></td><td><code>"left" | "center" | "right"</code></td><td><code>"left"</code></td><td>Text alignment for description</td></tr>
+								<tr><td><code>closable</code></td><td><code>boolean</code></td><td><code>true</code></td><td>Show dismiss button on hover</td></tr>
 							</tbody>
 						</table>
 					</div>

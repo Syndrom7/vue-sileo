@@ -381,6 +381,7 @@ onUnmounted(() => {
 				:styles="item.styles"
 				:button="item.button"
 				:description-align="item.descriptionAlign"
+				:closable="item.closable"
 				:roundness="item.roundness"
 				:exiting="item.exiting"
 				:auto-expand-delay-ms="item.autoExpandDelayMs"

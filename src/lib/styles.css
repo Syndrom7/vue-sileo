@@ -245,6 +245,62 @@
 	color: var(--sileo-tone, currentColor);
 }
 
+/* --------------------------------- Dismiss -------------------------------- */
+
+[data-sileo-dismiss] {
+	position: absolute;
+	z-index: 30;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 18px;
+	height: 18px;
+	border-radius: 9999px;
+	background: var(--sileo-fill, #fff);
+	color: var(--sileo-description);
+	opacity: 0;
+	cursor: pointer;
+	transform: scale(0.6);
+	transition: opacity 200ms ease, transform 200ms ease, background-color 150ms ease;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-sileo-dismiss] svg {
+	width: 12px;
+	height: 12px;
+	stroke-width: 2.5;
+}
+
+[data-sileo-dismiss][data-edge="bottom"] {
+	top: -5px;
+	right: calc(var(--sileo-width) - var(--_px) - var(--_pw) + 2px);
+}
+
+[data-sileo-dismiss][data-edge="top"] {
+	bottom: -5px;
+	right: calc(var(--sileo-width) - var(--_px) - var(--_pw) + 2px);
+}
+
+[data-sileo-toast]:hover [data-sileo-dismiss],
+[data-sileo-toast]:focus-within [data-sileo-dismiss] {
+	opacity: 1;
+	transform: scale(1);
+	pointer-events: auto;
+}
+
+[data-sileo-dismiss]:hover {
+	background-color: color-mix(in oklch, var(--sileo-description) 15%, var(--sileo-fill, #fff));
+}
+
+@media (hover: none) {
+	[data-sileo-dismiss] {
+		opacity: 0.6;
+		transform: scale(1);
+		pointer-events: auto;
+	}
+}
+
 /* ------------------------------ State Colors ------------------------------ */
 
 :is([data-sileo-badge], [data-sileo-title], [data-sileo-button])[data-state] {

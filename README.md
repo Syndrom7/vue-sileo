@@ -96,6 +96,7 @@ sileo.promise(
   roundness?: number;            // border radius
   autopilot?: boolean;           // auto expand/collapse
   descriptionAlign?: "left" | "center" | "right";  // default: "left"
+  closable?: boolean;              // show dismiss button (default: true)
   button?: { title: string; onClick: () => void };
 }
 ```

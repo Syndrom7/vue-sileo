@@ -46,6 +46,7 @@ export interface SileoOptions {
     autopilot?: boolean | { expand?: number; collapse?: number };
     button?: SileoButton;
     descriptionAlign?: SileoTextAlign;
+    closable?: boolean;
 }
 
 export interface SileoStackProps {
