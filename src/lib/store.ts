@@ -47,6 +47,7 @@ export interface SileoToasterProps {
     offset?: SileoOffsetValue | SileoOffsetConfig;
     options?: Partial<SileoOptions>;
     theme?: "light" | "dark" | "system";
+    maxVisibleToasts?: number;
 }
 
 export interface SileoPromiseOptions<T = unknown> {
@@ -151,7 +152,7 @@ const createToast = (options: InternalSileoOptions) => {
     const live = store.toasts.filter((t) => !t.exiting);
     const merged = mergeOptions(options);
 
-    const id = merged.id ?? "sileo-default";
+    const id = merged.id ?? generateId();
     const prev = live.find((t) => t.id === id);
     const item = buildSileoItem(merged, id, prev?.position);
 

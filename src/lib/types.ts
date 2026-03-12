@@ -44,3 +44,11 @@ export interface SileoOptions {
     autopilot?: boolean | { expand?: number; collapse?: number };
     button?: SileoButton;
 }
+
+export interface SileoStackProps {
+    stackIndex: number;
+    stackSize: number;
+    frontHeight: number;
+    stackExpanded: boolean;
+    stackVisible: boolean;
+}

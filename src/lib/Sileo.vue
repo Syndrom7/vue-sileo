@@ -11,7 +11,7 @@ import {
 	h,
 } from "vue";
 import { motion } from "motion-v";
-import type { SileoButton, SileoState, SileoStyles } from "./types";
+import type { SileoButton, SileoState, SileoStyles, SileoStackProps } from "./types";
 import {
 	ArrowRight,
 	Check,
@@ -71,6 +71,7 @@ const props = withDefaults(
 		canExpand?: boolean;
 		interruptKey?: string;
 		refreshKey?: string;
+		stack?: SileoStackProps;
 	}>(),
 	{
 		fill: "var(--sileo-fill)",
@@ -194,13 +195,28 @@ const pillX = computed(() =>
 
 /* ------------------------------- Inline styles ---------------------------- */
 
-const rootStyle = computed<CSSProperties & Record<string, string>>(() => ({
-	"--_h": `${open.value ? expanded.value : HEIGHT}px`,
-	"--_pw": `${resolvedPillWidth.value}px`,
-	"--_px": `${pillX.value}px`,
-	"--_ht": `translateY(${open.value ? (props.expand === "bottom" ? 3 : -3) : 0}px) scale(${open.value ? 0.9 : 1})`,
-	"--_co": `${open.value ? 1 : 0}`,
-}));
+const isStacked = computed(() => (props.stack?.stackSize ?? 1) > 1);
+const sIdx = computed(() => props.stack?.stackIndex ?? 0);
+
+const rootStyle = computed<CSSProperties & Record<string, string>>(() => {
+	const base: CSSProperties & Record<string, string> = {
+		"--_h": `${open.value ? expanded.value : HEIGHT}px`,
+		"--_pw": `${resolvedPillWidth.value}px`,
+		"--_px": `${pillX.value}px`,
+		"--_ht": `translateY(${open.value ? (props.expand === "bottom" ? 3 : -3) : 0}px) scale(${open.value ? 0.9 : 1})`,
+		"--_co": `${open.value ? 1 : 0}`,
+	};
+
+	const s = props.stack;
+	if (s && s.stackSize > 1) {
+		base["--stack-index"] = `${s.stackIndex}`;
+		base["--stack-size"] = `${s.stackSize}`;
+		base["--front-height"] = `${s.frontHeight}px`;
+		base.zIndex = `${s.stackSize - s.stackIndex}`;
+	}
+
+	return base;
+});
 
 const canvasStyle = computed<CSSProperties>(() => ({
 	filter: `url(#${filterId.value})`,
@@ -581,6 +597,10 @@ function handleButtonClick(e: MouseEvent) {
 		:data-edge="props.expand"
 		:data-position="props.position"
 		:data-state="view.state"
+		:data-stacked="isStacked ? '' : undefined"
+		:data-stack-index="isStacked ? sIdx : undefined"
+		:data-stack-expanded="isStacked && props.stack?.stackExpanded ? '' : undefined"
+		:data-stack-hidden="isStacked && !props.stack?.stackVisible ? '' : undefined"
 		:style="rootStyle"
 		@mouseenter="handleEnter"
 		@mouseleave="handleLeave"

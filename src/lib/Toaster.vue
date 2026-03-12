@@ -54,7 +54,7 @@ function useResolvedTheme(
 	return resolved;
 }
 import Sileo from "./Sileo.vue";
-import { SILEO_POSITIONS, type SileoPosition } from "./types";
+import { SILEO_POSITIONS, type SileoPosition, type SileoStackProps } from "./types";
 import {
 	store,
 	timeoutKey,
@@ -72,6 +72,7 @@ import { sileo } from "./store";
 
 const props = withDefaults(defineProps<SileoToasterProps>(), {
 	position: "top-right",
+	maxVisibleToasts: 3,
 });
 
 /* ---------------------------------- Theme --------------------------------- */
@@ -85,6 +86,11 @@ const activeId = ref<string>();
 let hovering = false;
 const timers = new Map<string, number>();
 let latestId: string | undefined;
+
+const stackExpanded = ref(new Map<SileoPosition, boolean>());
+const frontHeights = ref(new Map<SileoPosition, number>());
+const toastElMap = new Map<string, HTMLElement>();
+let pendingHeightRaf = false;
 
 /* ----------------------------- Handler caches ----------------------------- */
 
@@ -150,6 +156,81 @@ const byPosition = computed(() => {
 	return map;
 });
 
+/* ----------------------------- Stack Metadata ----------------------------- */
+
+const stackMeta = computed(() => {
+	const meta = new Map<string, SileoStackProps>();
+	for (const [pos, items] of Object.entries(byPosition.value) as [SileoPosition, SileoItem[]][]) {
+		if (!items) continue;
+		const size = items.length;
+		const expanded = stackExpanded.value.get(pos) ?? false;
+		const fh = frontHeights.value.get(pos) ?? 40;
+		for (let i = 0; i < size; i++) {
+			const stackIndex = size - 1 - i;
+			meta.set(items[i]!.id, {
+				stackIndex,
+				stackSize: size,
+				frontHeight: fh,
+				stackExpanded: expanded,
+				stackVisible: stackIndex < props.maxVisibleToasts,
+			});
+		}
+	}
+	return meta;
+});
+
+function getStackProps(id: string): SileoStackProps {
+	return stackMeta.value.get(id) ?? {
+		stackIndex: 0,
+		stackSize: 1,
+		frontHeight: 40,
+		stackExpanded: false,
+		stackVisible: true,
+	};
+}
+
+const stackCollapseTimers = new Map<SileoPosition, number>();
+
+function expandStack(pos: SileoPosition) {
+	const timer = stackCollapseTimers.get(pos);
+	if (timer) {
+		clearTimeout(timer);
+		stackCollapseTimers.delete(pos);
+	}
+	if (stackExpanded.value.get(pos)) return;
+	stackExpanded.value = new Map(stackExpanded.value.set(pos, true));
+}
+
+function collapseStack(pos: SileoPosition) {
+	// Debounce collapse so moving between toasts in a group doesn't flicker
+	const existing = stackCollapseTimers.get(pos);
+	if (existing) clearTimeout(existing);
+	stackCollapseTimers.set(pos, window.setTimeout(() => {
+		stackCollapseTimers.delete(pos);
+		stackExpanded.value = new Map(stackExpanded.value.set(pos, false));
+	}, 100));
+}
+
+function trackToastEl(id: string, pos: SileoPosition, el: HTMLElement | null) {
+	if (!el) {
+		toastElMap.delete(id);
+		return;
+	}
+	toastElMap.set(id, el);
+	const items = byPosition.value[pos];
+	if (!items || items.length === 0) return;
+	const frontId = items[items.length - 1]?.id;
+	if (id !== frontId || pendingHeightRaf) return;
+	pendingHeightRaf = true;
+	requestAnimationFrame(() => {
+		pendingHeightRaf = false;
+		const h = el.offsetHeight;
+		if (h > 0 && frontHeights.value.get(pos) !== h) {
+			frontHeights.value = new Map(frontHeights.value.set(pos, h));
+		}
+	});
+}
+
 /* ------------------------------- Watchers -------------------------------- */
 
 watch(latest, (val) => {
@@ -205,6 +286,11 @@ function handleMouseLeave() {
 	schedule(toasts.value);
 }
 
+function getToastPosition(toastId: string): SileoPosition | undefined {
+	const item = toasts.value.find((t) => t.id === toastId);
+	return item?.position ?? props.position;
+}
+
 function getHandlers(toastId: string): CachedHandlers {
 	let cached = handlersCache.get(toastId);
 	if (cached) return cached;
@@ -213,10 +299,14 @@ function getHandlers(toastId: string): CachedHandlers {
 		enter: (_e: MouseEvent) => {
 			if (activeId.value !== toastId) activeId.value = toastId;
 			handleMouseEnter();
+			const pos = getToastPosition(toastId);
+			if (pos) expandStack(pos);
 		},
 		leave: (_e: MouseEvent) => {
 			if (activeId.value !== latestId) activeId.value = latestId;
 			handleMouseLeave();
+			const pos = getToastPosition(toastId);
+			if (pos) collapseStack(pos);
 		},
 		dismiss: () => dismissToast(toastId),
 	};
@@ -259,6 +349,8 @@ onMounted(() => {
 onUnmounted(() => {
 	store.listeners.clear();
 	clearAllTimers();
+	for (const t of stackCollapseTimers.values()) clearTimeout(t);
+	stackCollapseTimers.clear();
 });
 </script>
 
@@ -270,13 +362,18 @@ onUnmounted(() => {
 			v-if="byPosition[pos]?.length"
 			data-sileo-viewport
 			:data-position="pos"
+			:data-stacked="(byPosition[pos]?.length ?? 0) > 1 ? '' : undefined"
+			:data-stack-expanded="stackExpanded.get(pos) ? '' : undefined"
 			:data-theme="props.theme ? resolvedTheme : undefined"
 			aria-live="polite"
 			:style="getViewportStyle(pos)"
+			@mouseenter="expandStack(pos)"
+			@mouseleave="collapseStack(pos)"
 		>
 			<Sileo
 				v-for="item in byPosition[pos]"
 				:key="item.id"
+				:ref="(el: any) => trackToastEl(item.id, pos, el?.$el ?? el)"
 				:id="item.id"
 				:state="item.state"
 				:title="item.title"
@@ -293,6 +390,7 @@ onUnmounted(() => {
 				:auto-collapse-delay-ms="item.autoCollapseDelayMs"
 				:refresh-key="item.instanceId"
 				:can-expand="activeId === undefined || activeId === item.id"
+				:stack="getStackProps(item.id)"
 				@mouseenter="getHandlers(item.id).enter($event)"
 				@mouseleave="getHandlers(item.id).leave($event)"
 				@dismiss="getHandlers(item.id).dismiss()"
