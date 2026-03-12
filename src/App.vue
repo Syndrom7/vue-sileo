@@ -20,7 +20,7 @@ const fill = ref("#FFFFFF");
 const duration = ref(6000);
 const copied = ref(false);
 const installCopied = ref(false);
-const isDark = ref(true);
+const isDark = ref(document.documentElement.getAttribute('data-theme') !== 'light');
 
 const positions: SileoPosition[] = [
 	"top-left", "top-center", "top-right",
@@ -216,7 +216,7 @@ function toggleTheme() {
 </script>
 
 <template>
-	<Toaster :position="position" />
+	<Toaster :position="position" :theme="isDark ? 'dark' : 'light'" />
 
 	<div class="page" :data-theme="isDark ? 'dark' : 'light'">
 		<!-- Nav -->

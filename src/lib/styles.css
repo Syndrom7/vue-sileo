@@ -46,17 +46,23 @@
 	--sileo-state-info: oklch(0.685 0.169 237.323);
 	--sileo-state-action: oklch(0.623 0.214 259.815);
 
-	/* Theme-aware colors - dark mode (default) */
 	--sileo-fill: #ffffff;
 	--sileo-text: #0a0a0a;
 	--sileo-description: #525252;
 }
 
-/* Light mode toast colors */
+[data-theme="dark"] {
+	--sileo-fill: #1c1c1e;
+	--sileo-text: #f5f5f7;
+	--sileo-description: #a1a1a6;
+	--sileo-shadow: none;
+}
+
 [data-theme="light"] {
-	--sileo-fill: #0a0a0a;
-	--sileo-text: #ffffff;
-	--sileo-description: #d4d4d4;
+	--sileo-fill: #ffffff;
+	--sileo-text: #1d1d1f;
+	--sileo-description: #6e6e73;
+	--sileo-shadow: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.08)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.06));
 }
 
 /* ---------------------------------- Toast --------------------------------- */
@@ -74,6 +80,7 @@
 	opacity: 0;
 	transform: translateZ(0) scale(0.95);
 	transform-origin: center;
+	filter: var(--sileo-shadow, none);
 	contain: layout style;
 	overflow: visible;
 }
@@ -548,12 +555,3 @@
 	gap: 0.75rem;
 }
 
-/* --------------------------------- Themes -------------------------------- */
-
-[data-sileo-viewport][data-theme="dark"] [data-sileo-description] {
-	color: rgba(0, 0, 0, 0.5);
-}
-
-[data-sileo-viewport][data-theme="light"] [data-sileo-description] {
-	color: rgba(255, 255, 255, 0.5);
-}

@@ -10,11 +10,6 @@ import {
 
 /* --------------------------------- Themes -------------------------------- */
 
-const THEME_FILLS = {
-	light: "#1a1a1a",
-	dark: "#f2f2f2",
-} as const;
-
 function useResolvedTheme(
 	getTheme: () => "light" | "dark" | "system" | undefined,
 ) {
@@ -73,6 +68,7 @@ import { sileo } from "./store";
 const props = withDefaults(defineProps<SileoToasterProps>(), {
 	position: "top-right",
 	maxVisibleToasts: 3,
+	theme: "system",
 });
 
 /* ---------------------------------- Theme --------------------------------- */
@@ -364,7 +360,7 @@ onUnmounted(() => {
 			:data-position="pos"
 			:data-stacked="(byPosition[pos]?.length ?? 0) > 1 ? '' : undefined"
 			:data-stack-expanded="stackExpanded.get(pos) ? '' : undefined"
-			:data-theme="props.theme ? resolvedTheme : undefined"
+			:data-theme="resolvedTheme"
 			aria-live="polite"
 			:style="getViewportStyle(pos)"
 			@mouseenter="expandStack(pos)"
@@ -381,7 +377,7 @@ onUnmounted(() => {
 				:position="pillAlign(pos)"
 				:expand="expandDir(pos)"
 				:icon="item.icon"
-				:fill="item.fill ?? (props.theme ? THEME_FILLS[resolvedTheme] : undefined)"
+				:fill="item.fill"
 				:styles="item.styles"
 				:button="item.button"
 				:description-align="item.descriptionAlign"
