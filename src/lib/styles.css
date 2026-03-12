@@ -273,13 +273,13 @@
 }
 
 [data-sileo-dismiss][data-edge="bottom"] {
-	top: -5px;
-	right: calc(var(--sileo-width) - var(--_px) - var(--_pw) + 2px);
+	top: -3px;
+	left: calc(var(--_px) + var(--_pw) - 15px);
 }
 
 [data-sileo-dismiss][data-edge="top"] {
-	bottom: -5px;
-	right: calc(var(--sileo-width) - var(--_px) - var(--_pw) + 2px);
+	bottom: -3px;
+	left: calc(var(--_px) + var(--_pw) - 15px);
 }
 
 [data-sileo-toast]:hover [data-sileo-dismiss],
