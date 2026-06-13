@@ -54,6 +54,8 @@
     "vue": ">=3.3"
   },
   "devDependencies": {
+    "@emnapi/core": "^1.11.1",
+    "@emnapi/runtime": "^1.11.1",
     "@types/node": "^25.9.3",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/language-core": "^3.3.5",
