@@ -1,6 +1,6 @@
 {
   "name": "vue-sileo",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "An opinionated, physics-based toast notification library for Vue.",
   "license": "MIT",
   "repository": {
@@ -28,11 +28,11 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/vue-sileo.d.ts",
+        "types": "./dist/src/lib/index.d.ts",
         "default": "./dist/vue-sileo.mjs"
       },
       "require": {
-        "types": "./dist/vue-sileo.d.ts",
+        "types": "./dist/src/lib/index.d.ts",
         "default": "./dist/vue-sileo.cjs"
       }
     },
@@ -40,7 +40,7 @@
   },
   "main": "./dist/vue-sileo.cjs",
   "module": "./dist/vue-sileo.mjs",
-  "types": "./dist/vue-sileo.d.ts",
+  "types": "./dist/src/lib/index.d.ts",
   "files": [
     "dist"
   ],
@@ -54,20 +54,18 @@
     "vue": ">=3.3"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
-    "@vitejs/plugin-vue": "^6.0.2",
-    "@vue/tsconfig": "^0.8.1",
+    "@types/node": "^25.9.3",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "@vue/language-core": "^3.3.5",
+    "@vue/tsconfig": "^0.9.1",
     "highlight.js": "^11.11.1",
-    "typescript": "~5.9.3",
-    "vite": "^8.0.0-beta.13",
-    "vite-plugin-dts": "^4.5.4",
-    "vue": "^3.5.25",
-    "vue-tsc": "^3.1.5"
-  },
-  "overrides": {
-    "vite": "^8.0.0-beta.13"
+    "typescript": "~6.0.3",
+    "vite": "^8.0.16",
+    "vite-plugin-dts": "^5.0.2",
+    "vue": "^3.5.38",
+    "vue-tsc": "^3.3.5"
   },
   "dependencies": {
-    "motion-v": "^2.0.0-beta.4"
+    "motion-v": "^2.3.0"
   }
 }

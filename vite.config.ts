@@ -7,8 +7,9 @@ export default defineConfig({
   plugins: [
     vue(),
     dts({
+      tsconfigPath: "tsconfig.lib.json",
       include: ["src/lib/**/*.ts", "src/lib/**/*.vue"],
-      outDir: "dist",
+      outDirs: ["dist"],
     }),
   ],
   build: {

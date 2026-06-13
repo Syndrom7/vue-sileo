@@ -18,7 +18,14 @@ A Vue 3 port of [sileo](https://github.com/hiaaryan/sileo) by [@hiaaryan](https:
 ## Installation
 
 ```bash
+# npm
 npm install vue-sileo
+
+# pnpm
+pnpm add vue-sileo
+
+# yarn
+yarn add vue-sileo
 ```
 
 ## Usage
